@@ -1,6 +1,8 @@
 import { relations, sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
+  double,
   index,
   int,
   mysqlTableCreator,
@@ -10,6 +12,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { createId } from "@paralleldrive/cuid2";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -36,6 +39,75 @@ export const posts = mysqlTable(
   })
 );
 
+export const categories = mysqlTable("category", {
+  id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow(),
+});
+
+export const bills = mysqlTable(
+  "bill",
+  {
+    id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
+    name: varchar("name", { length: 256 }).notNull(),
+    categoryId: varchar("name", { length: 256 }).notNull(),
+    dueDay: int("dueDay").notNull(),
+    amount: double("amount").default(0).notNull(),
+    createdById: varchar("createdById", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
+  },
+  (bill) => ({
+    createdByIdIdx: index("bill_createdById_idx").on(bill.createdById),
+    nameIndex: index("bill_name_idx").on(bill.name),
+  })
+);
+
+export const expenses = mysqlTable(
+  "expense",
+  {
+    id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
+    name: varchar("name", { length: 256 }).notNull(),
+    categoryId: varchar("name", { length: 256 }).notNull(),
+    billId: varchar("name", { length: 256 }),
+    dueAt: timestamp("dueAt").notNull(),
+    amount: double("amount").default(0).notNull(),
+    isPaid: boolean("isPaid").default(false).notNull(),
+    createdById: varchar("createdById", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
+  },
+  (expense) => ({
+    createdByIdIdx: index("expense_createdById_idx").on(expense.createdById),
+    nameIndex: index("expense_name_idx").on(expense.name),
+  })
+);
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  bills: many(bills),
+  expenses: many(expenses),
+}));
+
+export const billsRelations = relations(bills, ({ one, many }) => ({
+  createdBy: one(users, { fields: [bills.createdById], references: [users.id] }),
+  category: one(categories, { fields: [bills.categoryId], references: [categories.id] }),
+  expenses: many(expenses),
+}));
+
+export const expensesRelations = relations(expenses, ({ one }) => ({
+  createdBy: one(users, { fields: [expenses.createdById], references: [users.id] }),
+  category: one(categories, { fields: [expenses.categoryId], references: [categories.id] }),
+  bill: one(bills, { fields: [expenses.categoryId], references: [bills.id] }),
+}));
+
+
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
@@ -50,6 +122,8 @@ export const users = mysqlTable("user", {
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
+  bills: many(bills),
+  expenses: many(expenses),
 }));
 
 export const accounts = mysqlTable(
