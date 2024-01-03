@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations, sql, type InferSelectModel } from "drizzle-orm";
 import {
   bigint,
   boolean,
@@ -67,6 +67,8 @@ export const bills = mysqlTable(
     nameIndex: index("bill_name_idx").on(bill.name),
   })
 );
+
+export type TBill = InferSelectModel<typeof bills>;
 
 export const expenses = mysqlTable(
   "expense",
