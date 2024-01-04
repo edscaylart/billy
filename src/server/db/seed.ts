@@ -32,6 +32,10 @@ const categories = [
   "INSS",
   "IRPF",
   "Poupança",
+  "Empréstimo",
+  "Financiamento",
+  "Fatura",
+  "Outros",
 ]
 
 const execute = async () => {

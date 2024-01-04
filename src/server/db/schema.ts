@@ -53,7 +53,7 @@ export const bills = mysqlTable(
   {
     id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
     name: varchar("name", { length: 256 }).notNull(),
-    categoryId: varchar("name", { length: 256 }).notNull(),
+    categoryId: varchar("categoryId", { length: 256 }).notNull(),
     dueDay: int("dueDay").notNull(),
     amount: double("amount").default(0).notNull(),
     createdById: varchar("createdById", { length: 255 }).notNull(),
@@ -75,7 +75,7 @@ export const expenses = mysqlTable(
   {
     id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
     name: varchar("name", { length: 256 }).notNull(),
-    categoryId: varchar("name", { length: 256 }).notNull(),
+    categoryId: varchar("categoryId", { length: 256 }).notNull(),
     billId: varchar("name", { length: 256 }),
     dueAt: timestamp("dueAt").notNull(),
     amount: double("amount").default(0).notNull(),

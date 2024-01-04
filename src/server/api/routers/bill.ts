@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import {
   createTRPCRouter,
@@ -20,8 +20,44 @@ export const billRouter = createTRPCRouter({
         categoryName: categories.name
       })
       .from(bills)
-      .leftJoin(categories, eq(categories.id, bills.categoryId));
+      .leftJoin(categories, eq(categories.id, bills.categoryId))
+      .orderBy(asc(bills.dueDay), asc(bills.name));
   }),
+
+  create: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1),
+      categoryId: z.string(),
+      dueDay: z.number(),
+      amount: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(bills).values({
+        name: input.name,
+        categoryId: input.categoryId,
+        dueDay: input.dueDay,
+        amount: input.amount,
+        createdById: ctx.session.user.id,
+      })
+    }),
+
+  update: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      name: z.string().min(1),
+      categoryId: z.string(),
+      dueDay: z.number(),
+      amount: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.update(bills).set({
+        name: input.name,
+        categoryId: input.categoryId,
+        dueDay: input.dueDay,
+        amount: input.amount,
+        createdById: ctx.session.user.id,
+      }).where(eq(bills.id, input.id));
+    }),
 
   // create: protectedProcedure
   //   .input(z.object({ name: z.string().min(1) }))
@@ -34,14 +70,4 @@ export const billRouter = createTRPCRouter({
   //       createdById: ctx.session.user.id,
   //     });
   //   }),
-
-  getLatest: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.posts.findFirst({
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    });
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });

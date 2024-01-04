@@ -8,18 +8,24 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { type TBill } from "@/server/db/schema"
 import { BillList } from './bill-list';
-import { bills } from '../data';
 import { BillForm, type IBillFormHandler } from './bill-form';
 import { billState$ } from '../bill-observable';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 
 interface IBillsProps {
-  bills: TBill[];
+  bills?: {
+    id: string;
+    name: string;
+    dueDay: number;
+    amount: number;
+    categoryId: string;
+    categoryName: string | null;
+  }[];
   defaultLayout?: number[];
 }
 
-export function Bills({ defaultLayout = [440, 655] }: IBillsProps) {
+export function Bills({ bills, defaultLayout = [440, 655] }: IBillsProps) {
   const formRef = useRef<IBillFormHandler>(null)
 
   const billSelected = useSelector(billState$.selected)
@@ -38,7 +44,7 @@ export function Bills({ defaultLayout = [440, 655] }: IBillsProps) {
         <div className="flex items-center px-4 py-2 justify-between">
           <h1 className="text-xl font-bold">Contas a Pagar</h1>
           <Button onClick={() => {
-            // billState$.selected.set(undefined);
+            billState$.selected.set(undefined);
             formRef.current?.resetForm();
           }}>Novo</Button>
         </div>
@@ -55,7 +61,7 @@ export function Bills({ defaultLayout = [440, 655] }: IBillsProps) {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-        <BillForm ref={formRef} bill={bills.find(bill => bill.id === billSelected) ?? null} />
+        <BillForm ref={formRef} bill={bills?.find(bill => bill.id === billSelected) ?? null} />
       </ResizablePanel>
     </ResizablePanelGroup>
   )

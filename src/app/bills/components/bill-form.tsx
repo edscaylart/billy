@@ -1,13 +1,15 @@
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { type TBill } from "@/server/db/schema";
-import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { SelectCategory } from "@/app/_components/select-category";
+import { api } from "@/trpc/react";
+import { type TBill } from "@/server/db/schema";
 
 const billFormSchema = z.object({
   name: z.string(),
@@ -19,7 +21,14 @@ const billFormSchema = z.object({
 type TBillFormValues = z.infer<typeof billFormSchema>
 
 export interface IBillFormProps {
-  bill?: TBill | null;
+  bill?: {
+    id: string;
+    name: string;
+    dueDay: number;
+    amount: number;
+    categoryId: string;
+    categoryName: string | null;
+  } | null;
 }
 
 export interface IBillFormHandler {
@@ -35,6 +44,21 @@ const defaultValues: TBillFormValues = {
 
 const BillForm = forwardRef<IBillFormHandler, IBillFormProps>(
   function BillForm({ bill }, ref) {
+    const router = useRouter();
+
+    const createBill = api.bill.create.useMutation({
+      onSuccess: () => {
+        router.refresh();
+        form.reset(defaultValues);
+      },
+    })
+
+    const updateBill = api.bill.update.useMutation({
+      onSuccess: () => {
+        router.refresh();
+      },
+    })
+
     const form = useForm<TBillFormValues>({
       resolver: zodResolver(billFormSchema),
       mode: "onChange",
@@ -48,7 +72,11 @@ const BillForm = forwardRef<IBillFormHandler, IBillFormProps>(
     }, [bill])
 
     const onSubmit = (data: TBillFormValues) => {
-      console.log("🚀 ~ file: bill-form.tsx:22 ~ onSubmit ~ data:", data)
+      if (bill?.id) {
+        updateBill.mutate({ id: bill?.id, ...data })
+      } else {
+        createBill.mutate(data)
+      }
     }
 
     useImperativeHandle(ref, () => ({
@@ -78,6 +106,7 @@ const BillForm = forwardRef<IBillFormHandler, IBillFormProps>(
               <FormItem>
                 <FormLabel>Categoria</FormLabel>
                 <SelectCategory
+                  value={field.value}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 />

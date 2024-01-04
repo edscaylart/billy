@@ -6,7 +6,14 @@ import { type TBill } from "@/server/db/schema";
 import { billState$ } from "../bill-observable";
 
 interface IBillListProps {
-  bills: TBill[];
+  bills?: {
+    id: string;
+    name: string;
+    dueDay: number;
+    amount: number;
+    categoryId: string;
+    categoryName: string | null;
+  }[];
 }
 
 export function BillList({ bills }: IBillListProps) {
@@ -15,7 +22,7 @@ export function BillList({ bills }: IBillListProps) {
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {bills.map((bill) => (
+        {bills?.map((bill) => (
           <button
             key={bill.id}
             className={cn(
@@ -40,7 +47,7 @@ export function BillList({ bills }: IBillListProps) {
                   Vence todo dia {bill.dueDay}
                 </div>
               </div>
-              <div className="text-xs font-medium">{bill.categoryId}</div>
+              <div className="text-xs font-medium">Categoria: {bill.categoryName}</div>
             </div>
           </button>
         ))}
