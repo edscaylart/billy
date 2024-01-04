@@ -7,12 +7,14 @@
     "build": "next build",
     "db:push": "drizzle-kit push:mysql",
     "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx ./src/server/db/seed.ts",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.6",
+    "@auth/supabase-adapter": "^0.1.13",
     "@hookform/resolvers": "^3.3.3",
     "@legendapp/state": "^2.1.4",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -20,9 +22,11 @@
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-scroll-area": "^1.0.5",
+    "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@supabase/supabase-js": "^2.39.2",
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tanstack/react-query": "^4.36.1",
     "@trpc/client": "^10.43.6",
@@ -31,6 +35,7 @@
     "@trpc/server": "^10.43.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.3",
     "lucide-react": "^0.303.0",
     "next": "^14.0.4",
@@ -62,6 +67,7 @@
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
     "tailwindcss": "^3.3.5",
+    "tsx": "^4.7.0",
     "typescript": "^5.1.6"
   },
   "ct3aMetadata": {
