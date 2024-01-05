@@ -24,6 +24,21 @@ export const billRouter = createTRPCRouter({
       .orderBy(asc(bills.dueDay), asc(bills.name));
   }),
 
+  getOne: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.query.bills.findFirst({
+        columns: {
+          id: true,
+          name: true,
+          dueDay: true,
+          amount: true,
+          categoryId: true,
+        },
+        where: eq(bills.id, input.id),
+      })
+    }),
+
   create: protectedProcedure
     .input(z.object({
       name: z.string().min(1),

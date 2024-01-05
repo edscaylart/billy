@@ -6,10 +6,9 @@ import { useSelector } from "@legendapp/state/react"
 import { Input } from "@/components/ui/input";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator";
-import { type TBill } from "@/server/db/schema"
 import { BillList } from './bill-list';
-import { BillForm, type IBillFormHandler } from './bill-form';
-import { billState$ } from '../bill-observable';
+// import { BillForm, type IBillFormHandler } from './bill-form';
+import { billState$ } from '../observable';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 
@@ -26,7 +25,7 @@ interface IBillsProps {
 }
 
 export function Bills({ bills, defaultLayout = [440, 655] }: IBillsProps) {
-  const formRef = useRef<IBillFormHandler>(null)
+  // const formRef = useRef<IBillFormHandler>(null)
 
   const billSelected = useSelector(billState$.selected)
 
@@ -45,7 +44,7 @@ export function Bills({ bills, defaultLayout = [440, 655] }: IBillsProps) {
           <h1 className="text-xl font-bold">Contas a Pagar</h1>
           <Button onClick={() => {
             billState$.selected.set(undefined);
-            formRef.current?.resetForm();
+            // formRef.current?.resetForm();
           }}>Novo</Button>
         </div>
         <Separator />
@@ -61,7 +60,7 @@ export function Bills({ bills, defaultLayout = [440, 655] }: IBillsProps) {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-        <BillForm ref={formRef} bill={bills?.find(bill => bill.id === billSelected) ?? null} />
+        {/* <BillForm ref={formRef} bill={bills?.find(bill => bill.id === billSelected) ?? null} /> */}
       </ResizablePanel>
     </ResizablePanelGroup>
   )

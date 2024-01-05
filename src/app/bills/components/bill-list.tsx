@@ -2,8 +2,7 @@ import { useSelector } from "@legendapp/state/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { type TBill } from "@/server/db/schema";
-import { billState$ } from "../bill-observable";
+import { billState$ } from "../observable";
 
 interface IBillListProps {
   bills?: {

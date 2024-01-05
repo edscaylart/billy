@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = FontSans({
@@ -44,11 +45,10 @@ export default function RootLayout({ children }: IRootLayoutProps) {
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange>
-            <div className="relative flex min-h-screen flex-col bg-background">
-              <main className="flex-1">
-                {children}
-              </main>
-            </div>
+            <main className="mx-auto min-h-screen max-w-[840px]">
+              {children}
+            </main>
+            <Toaster />
           </ThemeProvider>
         </TRPCReactProvider>
       </body>
