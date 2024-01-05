@@ -3,6 +3,7 @@
 import { api } from "@/trpc/react";
 import { BillForm, type TBillFormValues } from "../bills/components/bill-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface IEditBill {
   bill: {
@@ -16,6 +17,7 @@ interface IEditBill {
 }
 
 export function EditBill({ bill }: IEditBill) {
+  const router = useRouter();
   const { toast } = useToast()
 
   const updateBill = api.bill.update.useMutation()
@@ -27,11 +29,12 @@ export function EditBill({ bill }: IEditBill) {
           title: "Conta atualizada",
           description: `${values.name} foi atualizado com sucesso!`,
         })
+        router.refresh()
       }
     })
   }
 
   return (
-    <BillForm bill={bill} onSubmit={onSubmit} />
+    <BillForm bill={bill} isSubmitting={updateBill.isLoading} onSubmit={onSubmit} />
   )
 }

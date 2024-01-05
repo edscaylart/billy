@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 import { SelectCategory } from "@/app/_components/select-category";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { CategoryCombobox } from "@/app/_components/category-combobox";
 
 const billFormSchema = z.object({
   name: z.string(),
@@ -28,28 +29,21 @@ export interface IBillFormProps {
     categoryId: string;
     categoryName?: string | null;
   } | null;
-  onSubmit: (values: TBillFormValues) => Promise<boolean>;
+  isSubmitting?: boolean;
+  onSubmit: (values: TBillFormValues) => Promise<void>;
 }
 
-const defaultValues: TBillFormValues = {
-  name: "",
-  categoryId: "",
-  dueDay: 0,
-  amount: 0
-}
-
-export function BillForm({ bill, onSubmit }: IBillFormProps) {
+export function BillForm({ bill, isSubmitting, onSubmit }: IBillFormProps) {
   const form = useForm<TBillFormValues>({
     resolver: zodResolver(billFormSchema),
     mode: "onChange",
-    defaultValues,
+    values: bill ? {
+      name: bill.name,
+      categoryId: bill.categoryId,
+      dueDay: bill.dueDay,
+      amount: bill.amount
+    } : undefined,
   })
-
-  useEffect(() => {
-    if (bill) {
-      form.reset(bill)
-    }
-  }, [bill])
 
   const handleSubmit = async (data: TBillFormValues) => {
     await onSubmit(data)
@@ -75,12 +69,11 @@ export function BillForm({ bill, onSubmit }: IBillFormProps) {
           control={form.control}
           name="categoryId"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Categoria</FormLabel>
-              <SelectCategory
+              <CategoryCombobox
                 value={field.value}
                 onValueChange={field.onChange}
-                defaultValue={field.value}
               />
               <FormMessage />
             </FormItem>
@@ -112,7 +105,10 @@ export function BillForm({ bill, onSubmit }: IBillFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
           Salvar
         </Button>
       </form>

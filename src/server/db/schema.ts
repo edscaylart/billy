@@ -76,7 +76,7 @@ export const expenses = mysqlTable(
     id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
     name: varchar("name", { length: 256 }).notNull(),
     categoryId: varchar("categoryId", { length: 256 }).notNull(),
-    billId: varchar("name", { length: 256 }),
+    billId: varchar("billId", { length: 256 }),
     dueAt: timestamp("dueAt").notNull(),
     amount: double("amount").default(0).notNull(),
     isPaid: boolean("isPaid").default(false).notNull(),
@@ -91,6 +91,8 @@ export const expenses = mysqlTable(
     nameIndex: index("expense_name_idx").on(expense.name),
   })
 );
+
+export type TExpense = InferSelectModel<typeof expenses>;
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
   bills: many(bills),

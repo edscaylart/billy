@@ -1,15 +1,14 @@
 import { z } from "zod";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 
 import {
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
 } from "@/server/api/trpc";
-import { bills, categories } from "@/server/db/schema";
+import { bills, categories, expenses } from "@/server/db/schema";
 
 export const billRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.db
       .select({
         id: bills.id,
@@ -17,14 +16,14 @@ export const billRouter = createTRPCRouter({
         dueDay: bills.dueDay,
         amount: bills.amount,
         categoryId: bills.categoryId,
-        categoryName: categories.name
+        categoryName: categories.name,
       })
       .from(bills)
       .leftJoin(categories, eq(categories.id, bills.categoryId))
       .orderBy(asc(bills.dueDay), asc(bills.name));
   }),
 
-  getOne: publicProcedure
+  getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.query.bills.findFirst({
@@ -74,15 +73,29 @@ export const billRouter = createTRPCRouter({
       }).where(eq(bills.id, input.id));
     }),
 
-  // create: protectedProcedure
-  //   .input(z.object({ name: z.string().min(1) }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     // simulate a slow db call
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+  generateExpenses: protectedProcedure
+    .input(z.object({
+      ids: z.array(z.string()),
+      month: z.number(),
+      year: z.number()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const selectedBills = await ctx.db.query.bills.findMany({
+        where: inArray(bills.id, input.ids),
+      })
 
-  //     await ctx.db.insert(posts).values({
-  //       name: input.name,
-  //       createdById: ctx.session.user.id,
-  //     });
-  //   }),
+      const expenseData = selectedBills.map((bill) => ({
+        name: bill.name,
+        categoryId: bill.categoryId,
+        billId: bill.id,
+        dueAt: new Date(input.year, input.month - 1, bill.dueDay),
+        amount: bill.amount,
+        isPaid: false,
+        createdById: ctx.session.user.id,
+      }))
+
+      await ctx.db.insert(expenses).values(expenseData)
+
+      return { generated: true }
+    })
 });
