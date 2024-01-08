@@ -1,3 +1,4 @@
+import { authRouter } from "./routers/authentication";
 import { postRouter } from "@/server/api/routers/post";
 import { categoryRouter } from "@/server/api/routers/category";
 import { billRouter } from "@/server/api/routers/bill";
@@ -10,6 +11,7 @@ import { createTRPCRouter } from "@/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  auth: authRouter,
   post: postRouter,
   category: categoryRouter,
   bill: billRouter,

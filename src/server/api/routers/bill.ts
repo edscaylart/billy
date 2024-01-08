@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 
 import {
   createTRPCRouter,
@@ -20,6 +20,7 @@ export const billRouter = createTRPCRouter({
       })
       .from(bills)
       .leftJoin(categories, eq(categories.id, bills.categoryId))
+      .where(eq(bills.createdById, ctx.session.user.id))
       .orderBy(asc(bills.dueDay), asc(bills.name));
   }),
 
@@ -34,7 +35,7 @@ export const billRouter = createTRPCRouter({
           amount: true,
           categoryId: true,
         },
-        where: eq(bills.id, input.id),
+        where: and(eq(bills.createdById, ctx.session.user.id), eq(bills.id, input.id)),
       })
     }),
 
@@ -78,7 +79,10 @@ export const billRouter = createTRPCRouter({
       ids: z.array(z.string()),
       month: z.number(),
       year: z.number()
-    }))
+    }).transform((input) => ({
+      ids: input.ids,
+      monthYear: `${input.month}/${input.year}`
+    })))
     .mutation(async ({ ctx, input }) => {
       const selectedBills = await ctx.db.query.bills.findMany({
         where: inArray(bills.id, input.ids),
@@ -88,7 +92,8 @@ export const billRouter = createTRPCRouter({
         name: bill.name,
         categoryId: bill.categoryId,
         billId: bill.id,
-        dueAt: new Date(input.year, input.month - 1, bill.dueDay),
+        dueDay: bill.dueDay,
+        monthYear: input.monthYear,
         amount: bill.amount,
         isPaid: false,
         createdById: ctx.session.user.id,

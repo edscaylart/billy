@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import { Cross2Icon, PlayIcon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
 import { billSchema } from "../schema";
 import { api } from "@/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
+import { MonthYearSelect, type TMonthYearSelectValue } from "@/components/month-year-select";
+import { useState } from "react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -17,6 +19,11 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const router = useRouter()
   const { toast } = useToast()
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  const [competence, setCompetence] = useState<TMonthYearSelectValue>({ month: currentMonth, year: currentYear });
 
   const generateExpenses = api.bill.generateExpenses.useMutation({
     onSuccess: () => {
@@ -33,7 +40,7 @@ export function DataTableToolbar<TData>({
   });
 
   const isFiltered = table.getState().columnFilters.length > 0
-  const IsSomeRowsSelected = table.getIsSomeRowsSelected();
+  const IsRowsSelected = table.getIsSomeRowsSelected() || table.getIsAllRowsSelected();
 
   const handleGenerateExpenses = async () => {
     const { rows } = table.getSelectedRowModel();
@@ -41,8 +48,7 @@ export function DataTableToolbar<TData>({
 
     await generateExpenses.mutateAsync({
       ids: parsedRows.map((row) => row.id),
-      month: 1,
-      year: 2024
+      ...competence
     })
   }
 
@@ -68,12 +74,25 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      {IsSomeRowsSelected && (
+
+      {IsRowsSelected ? (
+        <div className="flex flex-row gap-2">
+          <MonthYearSelect defaultValue={competence} onValueChange={setCompetence} />
+          <Button
+            className="h-9"
+            variant="secondary"
+            size="sm"
+            onClick={() => handleGenerateExpenses()}>
+            Gerar Despesas
+            <PlayIcon className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
         <Button
-          variant="outline" size="sm" className="h-8 border-dashed"
-          onClick={() => handleGenerateExpenses()}>
-          Gerar Despesas
-          {/* <Cross2Icon className="ml-2 h-4 w-4" /> */}
+          className="h-9"
+          size="sm"
+          onClick={() => router.push('bills/add')}>
+          Nova conta
         </Button>
       )}
     </div>

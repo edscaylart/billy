@@ -46,12 +46,14 @@ const execute = async () => {
     { schema }
   );
 
-  const data = categories.map((name) => ({
-    id: createId(),
-    name
-  }))
+  // const data = categories.map((name) => ({
+  //   id: createId(),
+  //   name
+  // }))
 
-  await db.insert(schema.categories).values(data);
+  // await db.insert(schema.categories).values(data);
+
+  // await db.delete(schema.expenses)
 }
 
 execute()

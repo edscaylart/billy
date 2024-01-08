@@ -43,7 +43,10 @@ export const columns: ColumnDef<TBill>[] = [
   },
   {
     accessorKey: "dueDay",
-    header: "Vence Dia",
+    header: () => <div className="text-right">Vence Dia</div>,
+    cell: ({ row }) => {
+      return <div className="text-right font-medium">{row.getValue("dueDay")}</div>
+    },
   },
   {
     accessorKey: "amount",

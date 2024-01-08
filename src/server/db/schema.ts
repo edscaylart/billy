@@ -77,7 +77,8 @@ export const expenses = mysqlTable(
     name: varchar("name", { length: 256 }).notNull(),
     categoryId: varchar("categoryId", { length: 256 }).notNull(),
     billId: varchar("billId", { length: 256 }),
-    dueAt: timestamp("dueAt").notNull(),
+    monthYear: varchar("monthYear", { length: 256 }).notNull(),
+    dueDay: int("dueDay"),
     amount: double("amount").default(0).notNull(),
     isPaid: boolean("isPaid").default(false).notNull(),
     createdById: varchar("createdById", { length: 255 }).notNull(),
@@ -108,14 +109,14 @@ export const billsRelations = relations(bills, ({ one, many }) => ({
 export const expensesRelations = relations(expenses, ({ one }) => ({
   createdBy: one(users, { fields: [expenses.createdById], references: [users.id] }),
   category: one(categories, { fields: [expenses.categoryId], references: [categories.id] }),
-  bill: one(bills, { fields: [expenses.categoryId], references: [bills.id] }),
+  bill: one(bills, { fields: [expenses.billId], references: [bills.id] }),
 }));
 
-
 export const users = mysqlTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  id: varchar("id", { length: 255 }).$defaultFn(() => createId()).primaryKey(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     fsp: 3,

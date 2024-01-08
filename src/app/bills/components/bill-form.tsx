@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SelectCategory } from "@/app/_components/select-category";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { CategoryCombobox } from "@/app/_components/category-combobox";
 
