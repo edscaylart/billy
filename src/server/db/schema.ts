@@ -1,6 +1,5 @@
-import { relations, sql, type InferSelectModel } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
-  bigint,
   boolean,
   double,
   index,
@@ -21,23 +20,6 @@ import { createId } from "@paralleldrive/cuid2";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const mysqlTable = mysqlTableCreator((name) => `billy_${name}`);
-
-export const posts = mysqlTable(
-  "post",
-  {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
 
 export const categories = mysqlTable("category", {
   id: varchar("id", { length: 256 }).$defaultFn(() => createId()).primaryKey(),
@@ -68,8 +50,6 @@ export const bills = mysqlTable(
   })
 );
 
-export type TBill = InferSelectModel<typeof bills>;
-
 export const expenses = mysqlTable(
   "expense",
   {
@@ -92,8 +72,6 @@ export const expenses = mysqlTable(
     nameIndex: index("expense_name_idx").on(expense.name),
   })
 );
-
-export type TExpense = InferSelectModel<typeof expenses>;
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
   bills: many(bills),

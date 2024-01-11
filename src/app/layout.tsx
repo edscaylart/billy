@@ -7,6 +7,10 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider";
+import { GlobalHeader } from "@/components/global-header";
+import { GlobalFooter } from "@/components/global-footer";
+import { getServerAuthSession } from '@/server/auth';
+import SessionProvider from "@/components/session-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -32,7 +36,9 @@ interface IRootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: IRootLayoutProps) {
+export default async function RootLayout({ children }: IRootLayoutProps) {
+  const session = await getServerAuthSession()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
@@ -40,16 +46,25 @@ export default function RootLayout({ children }: IRootLayoutProps) {
         fontSans.variable
       )}>
         <TRPCReactProvider cookies={cookies().toString()}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange>
-            <main className="mx-auto min-h-screen max-w-[840px]">
-              {children}
-            </main>
-            <Toaster />
-          </ThemeProvider>
+          <SessionProvider session={session}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div vaul-drawer-wrapper="">
+                <div className="relative flex min-h-screen flex-col bg-background">
+                  <GlobalHeader />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <GlobalFooter />
+                </div>
+              </div>
+              <Toaster />
+            </ThemeProvider>
+          </SessionProvider>
         </TRPCReactProvider>
       </body>
     </html>
