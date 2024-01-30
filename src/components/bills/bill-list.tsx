@@ -5,7 +5,7 @@ import { columns } from "./columns";
 import { api } from "@/trpc/react";
 
 export function BillList() {
-  const bills = api.bill.getAll.useQuery(undefined, {
+  const bills = api.bill.all.useQuery(undefined, {
     refetchOnWindowFocus: true
   });
 

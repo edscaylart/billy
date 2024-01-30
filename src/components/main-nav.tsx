@@ -26,7 +26,7 @@ export function MainNav() {
           href="/categories"
           className={cn(
             "transition-colors hover:text-foreground/80",
-            pathname === "/docs" ? "text-foreground" : "text-foreground/60"
+            pathname === "/categories" ? "text-foreground" : "text-foreground/60"
           )}
         >
           Categorias

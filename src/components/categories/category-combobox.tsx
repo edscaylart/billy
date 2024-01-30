@@ -26,7 +26,7 @@ interface ICategoryComboboxProps {
 }
 
 export function CategoryCombobox({ value, onValueChange }: ICategoryComboboxProps) {
-  const categories = api.category.getAll.useQuery();
+  const categories = api.category.all.useQuery();
 
   const [open, setOpen] = React.useState(false)
 

@@ -10,7 +10,7 @@ export default function EditBillsPage({ params }: { params: { id: string } }) {
 
   const utils = api.useUtils()
 
-  const bill = api.bill.getOne.useQuery({ id: params.id }, { staleTime: Infinity, enabled: !!params.id });
+  const bill = api.bill.byOne.useQuery({ id: params.id }, { staleTime: Infinity, enabled: !!params.id });
 
   const updateBill = api.bill.update.useMutation({
     onSuccess: async (_, values) => {
@@ -20,7 +20,7 @@ export default function EditBillsPage({ params }: { params: { id: string } }) {
       })
     },
     onSettled: async () => {
-      await utils.bill.getAll.invalidate()
+      await utils.bill.all.invalidate()
     }
   })
 

@@ -4,24 +4,24 @@ import { useSelector } from "@legendapp/state/react"
 
 import { api } from "@/trpc/react";
 import { type TExpense } from "@/schemas";
-import { expenseState$ } from "@/states/expense";
 import { useToast } from "@/components/ui/use-toast";
 import { DataTable } from "./data-table";
+import { appState$ } from "@/states/app";
 
 export function ExpenseList() {
   const { toast } = useToast()
-  const competence = useSelector(expenseState$.selected)
+  const competence = useSelector(appState$.competence)
 
   const utils = api.useUtils();
 
-  const expenses = api.expense.getAll.useQuery(competence, {
+  const expenses = api.expense.all.useQuery(competence, {
     refetchOnWindowFocus: true
   });
 
   const updateAmount = api.expense.updateAmount.useMutation({
     onMutate: async (updateEntry) => {
-      await utils.expense.getAll.cancel();
-      utils.expense.getAll.setData(competence, (prevEntries) => {
+      await utils.expense.all.cancel();
+      utils.expense.all.setData(competence, (prevEntries) => {
         if (prevEntries) {
           const index = prevEntries.findIndex((entry) => entry.id === updateEntry.id);
           if (index !== -1 && prevEntries[index]) {
@@ -38,7 +38,7 @@ export function ExpenseList() {
       })
     },
     onSettled: async () => {
-      await utils.expense.getAll.invalidate();
+      await utils.expense.all.invalidate();
     }
   });
 

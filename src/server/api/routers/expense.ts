@@ -5,7 +5,7 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { categories, expenses } from "@/server/db/schema";
 
 export const expenseRouter = createTRPCRouter({
-  getAll: protectedProcedure
+  all: protectedProcedure
     .input(z.object({ month: z.number(), year: z.number() }).transform((input) => ({ monthYear: `${input.month}/${input.year}` })))
     .query(({ ctx, input }) => {
       return ctx.db

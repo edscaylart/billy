@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { CategoryCombobox } from "@/components/category-combobox";
+import { CategoryCombobox } from "@/components/categories/category-combobox";
 import { type TBill, billSchema } from "@/schemas";
 
 export interface IBillFormProps {

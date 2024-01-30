@@ -5,7 +5,7 @@ import { type Row } from "@tanstack/react-table"
 import { expenseSchema } from "@/schemas";
 import { api } from "@/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import { expenseState$ } from "@/states/expense";
+import { appState$ } from "@/states/app";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -22,8 +22,8 @@ export function DataTableRowActions<TData>({
 
   const markAsPaid = api.expense.markAsPaid.useMutation({
     onMutate: async (updateEntry) => {
-      await utils.expense.getAll.cancel()
-      utils.expense.getAll.setData(expenseState$.selected.get(), (prevEntries) => {
+      await utils.expense.all.cancel()
+      utils.expense.all.setData(appState$.competence.get(), (prevEntries) => {
         if (prevEntries) {
           const index = prevEntries.findIndex((entry) => entry.id === updateEntry.id)
           if (index !== -1 && prevEntries[index]) {

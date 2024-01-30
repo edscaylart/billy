@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
 import { MonthYearSelect } from "@/components/month-year-select";
-import { expenseState$ } from "@/states/expense";
 import { DataTableFacetedFilter, type IDataTableFacetedFilterOptionProps } from "./data-table-faceted-filter";
+import { appState$ } from "@/states/app";
+import { api } from "@/trpc/react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -14,6 +15,8 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  const updateAmounts = api.bill.updateAmounts.useMutation()
 
   return (
     <div className="flex items-center justify-between">
@@ -45,7 +48,16 @@ export function DataTableToolbar<TData>({
         )}
       </div>
 
-      <MonthYearSelect defaultValue={expenseState$.selected.get()} onValueChange={value => expenseState$.selected.set(value)} />
+      <MonthYearSelect defaultValue={appState$.competence.get()} onValueChange={value => appState$.competence.set(value)} />
+      <Button
+        variant="secondary"
+        onClick={() => {
+          updateAmounts.mutate(appState$.competence.get())
+        }}
+        className="h-8 px-2 lg:px-3 ml-4"
+      >
+        Atualizar Conta
+      </Button>
     </div>
   )
 }

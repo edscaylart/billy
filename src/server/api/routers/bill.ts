@@ -8,7 +8,7 @@ import {
 import { bills, categories, expenses } from "@/server/db/schema";
 
 export const billRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
+  all: protectedProcedure.query(({ ctx }) => {
     return ctx.db
       .select({
         id: bills.id,
@@ -24,7 +24,7 @@ export const billRouter = createTRPCRouter({
       .orderBy(asc(bills.dueDay), asc(bills.name));
   }),
 
-  getOne: protectedProcedure
+  byOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.query.bills.findFirst({
@@ -102,5 +102,33 @@ export const billRouter = createTRPCRouter({
       await ctx.db.insert(expenses).values(expenseData)
 
       return { generated: true }
+    }),
+
+  updateAmounts: protectedProcedure
+    .input(z.object({
+      month: z.number(),
+      year: z.number()
+    }).transform((input) => ({
+      monthYear: `${input.month}/${input.year}`
+    })))
+    .mutation(async ({ ctx, input }) => {
+      const expenseList = await ctx.db.query.expenses.findMany({
+        where: and(
+          eq(expenses.createdById, ctx.session.user.id),
+          eq(expenses.monthYear, input.monthYear)
+        ),
+      })
+      await ctx.db.transaction(async (tx) => {
+        for (const expenseRow of expenseList) {
+          if (expenseRow.billId) {
+            await tx.update(bills).set({
+              amount: expenseRow.amount,
+            }).where(eq(bills.id, expenseRow.billId))
+          }
+        }
+      })
+      return { generated: true }
     })
+
+
 });

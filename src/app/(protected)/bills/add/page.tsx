@@ -18,7 +18,7 @@ export default function CreateBillsPage() {
       })
     },
     onSettled: async () => {
-      await utils.bill.getAll.invalidate()
+      await utils.bill.all.invalidate()
     }
   })
 
