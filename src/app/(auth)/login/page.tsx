@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 
-export const loginSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
