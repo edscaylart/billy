@@ -6,8 +6,13 @@ import { categories, expenses } from "@/server/db/schema";
 
 export const expenseRouter = createTRPCRouter({
   all: protectedProcedure
-    .input(z.object({ month: z.number(), year: z.number() }).transform((input) => ({ monthYear: `${input.month}/${input.year}` })))
+    .input(
+      z
+        .object({ month: z.number(), year: z.number() })
+        .transform((input) => ({ monthYear: `${input.month}/${input.year}` })),
+    )
     .query(({ ctx, input }) => {
+      console.log({ userId: ctx.user.id });
       return ctx.db
         .select({
           id: expenses.id,
@@ -22,24 +27,43 @@ export const expenseRouter = createTRPCRouter({
         })
         .from(expenses)
         .leftJoin(categories, eq(categories.id, expenses.categoryId))
-        .where(and(eq(expenses.createdById, ctx.session.user.id), eq(expenses.monthYear, input.monthYear)))
-        .orderBy(asc(expenses.isPaid), asc(expenses.dueDay), asc(expenses.name));
+        .where(
+          and(
+            eq(expenses.createdById, ctx.user.id),
+            eq(expenses.monthYear, input.monthYear),
+          ),
+        )
+        .orderBy(
+          asc(expenses.isPaid),
+          asc(expenses.dueDay),
+          asc(expenses.name),
+        );
     }),
 
   markAsPaid: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.update(expenses).set({ isPaid: true }).where(eq(expenses.id, input.id));
+      await ctx.db
+        .update(expenses)
+        .set({ isPaid: true })
+        .where(eq(expenses.id, input.id));
     }),
 
   updateAmount: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      amount: z.number(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        amount: z.number(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.update(expenses).set({ amount: input.amount }).where(eq(expenses.id, input.id));
+      await ctx.db
+        .update(expenses)
+        .set({ amount: input.amount })
+        .where(eq(expenses.id, input.id));
     }),
 });

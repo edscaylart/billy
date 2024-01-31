@@ -1,18 +1,24 @@
-import { getServerAuthSession } from "@/server/auth";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { createClient } from "@/utils/supabase/server";
 
 interface IProtectedLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function ProtectedLayout({ children }: IProtectedLayoutProps) {
-  const session = await getServerAuthSession()
+export default async function ProtectedLayout({
+  children,
+}: IProtectedLayoutProps) {
+  const supabase = createClient(cookies());
 
-  if (!session || !session.user) {
-    redirect("/")
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
   }
 
-  return (
-    <>{children}</>
-  )
+  return <>{children}</>;
 }

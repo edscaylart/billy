@@ -36,25 +36,23 @@ const categories = [
   "Financiamento",
   "Fatura",
   "Outros",
-]
+];
 
 const execute = async () => {
   const db = drizzle(
     new Client({
       url: env.DATABASE_URL,
     }).connection(),
-    { schema }
+    { schema },
   );
 
-  // const data = categories.map((name) => ({
-  //   id: createId(),
-  //   name
-  // }))
+  const data = categories.map((name) => ({
+    id: createId(),
+    name,
+  }));
 
-  // await db.insert(schema.categories).values(data);
-
-  // await db.delete(schema.expenses)
-}
+  await db.insert(schema.categories).values(data);
+};
 
 execute()
   .catch((e) => {
@@ -62,6 +60,6 @@ execute()
     process.exit(1);
   })
   .finally(() => {
-    console.log('Seeding done!');
+    console.log("Seeding done!");
     process.exit(0);
-  });;
+  });

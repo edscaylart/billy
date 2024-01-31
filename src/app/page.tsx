@@ -1,13 +1,15 @@
-import { UserAuthForm } from "@/components/auth/user-auth-form";
+import { cookies } from "next/headers";
+
 import Dashboard from "@/components/dashboard/dashboard";
-import { getServerAuthSession } from "@/server/auth";
+import { AuthForm } from "@/components/auth/auth-form";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
-  const session = await getServerAuthSession();
+  const supabase = createClient(cookies());
 
-  return (
-    <>
-      {session ? <Dashboard /> : <UserAuthForm />}
-    </>
-  );
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return <>{user ? <Dashboard /> : <AuthForm />}</>;
 }
